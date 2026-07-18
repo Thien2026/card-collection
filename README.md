@@ -1,21 +1,67 @@
+<!-- Banner / Hero -->
 <p align="center">
-  <img src="public/images/logo.png" alt="Card Collection" width="96" />
+  <img src="public/images/logo.png" alt="Card Collection" width="110" />
 </p>
 
 <h1 align="center">Card Collection</h1>
 
 <p align="center">
-  <strong>Ứng dụng quản lý bộ sưu tập thẻ + kho + bán hàng + công nợ</strong><br />
-  Dành cho người sưu tầm và kinh doanh card — biết mình đang giữ gì, vốn bao nhiêu, bán ra lãi/lỗ thế nào, ai còn nợ ai.
+  <b>Quản lý bộ sưu tập thẻ · kho · bán hàng · công nợ · lãi/lỗ</b><br />
+  <sub>Biết mình đang giữ gì · vốn bao nhiêu · bán ra lãi thế nào · ai còn nợ ai</sub>
 </p>
 
 <p align="center">
-  <img src="public/images/demo/IMG_3720.PNG" alt="Trang chủ Card Collection" width="280" />
+  <a href="https://github.com/Thien2026/card-collection"><img src="https://img.shields.io/badge/GitHub-Thien2026%2Fcard--collection-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" /></a>
+  <a href="#14-chạy-local--deploy"><img src="https://img.shields.io/badge/Setup-5%20phút-7C3AED?style=for-the-badge" alt="Setup" /></a>
+  <a href="#8-bán-hàng"><img src="https://img.shields.io/badge/Module-Bán%20hàng%20%2B%20Công%20nợ-EC4899?style=for-the-badge" alt="Sales" /></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Prisma-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Auth.js-v5-000000?style=flat-square&logo=auth0&logoColor=white" alt="Auth.js" />
+  <img src="https://img.shields.io/badge/Tailwind-CSS%204-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind" />
+  <img src="https://img.shields.io/badge/Deploy-PM2%20%2B%20Nginx-2BDE73?style=flat-square&logo=nginx&logoColor=white" alt="Deploy" />
 </p>
 
 ---
 
-## Mục lục
+<p align="center">
+  <img src="public/images/demo/IMG_3720.PNG" alt="Trang chủ" width="220" />
+  &nbsp;
+  <img src="public/images/demo/IMG_3721.PNG" alt="Bộ sưu tập" width="220" />
+  &nbsp;
+  <img src="public/images/demo/IMG_3722.PNG" alt="Bán hàng" width="220" />
+</p>
+<p align="center">
+  <img src="public/images/demo/IMG_3723.PNG" alt="Báo cáo" width="220" />
+  &nbsp;
+  <img src="public/images/demo/IMG_3725.PNG" alt="Hồ sơ" width="220" />
+  &nbsp;
+  <img src="public/images/demo/IMG_3726.PNG" alt="Admin backup" width="220" />
+</p>
+
+---
+
+## Highlights
+
+| | Module | Làm gì? |
+|:---:|---|---|
+| 🗂️ | **[Bộ sưu tập](#4-bộ-sưu-tập-collection)** | Gom theo IP / dòng hàng, cover + banner + mục tiêu |
+| 📚 | **[Series](#5-series--bộ)** | Chia nhỏ trong bộ — set, đợt, loại hàng |
+| 🃏 | **[Card & kho](#6-card--tồn-kho-inventory)** | Mẫu thẻ + từng bản thật (SKU, vốn, tình trạng) |
+| 📸 | **[Upload ảnh](#7-thêm-card--upload-ảnh)** | Drop · camera · crop 2.5:3.5 · HEIC → WebP |
+| 💸 | **[Bán hàng](#8-bán-hàng)** | Đơn · kênh · thanh toán · hoàn một phần/toàn bộ |
+| 📒 | **[Sổ nợ](#9-khách-hàng--sổ-nợ)** | Khách nợ mình / mình nợ khách, lịch sử rõ |
+| 📊 | **[Báo cáo](#10-báo-cáo)** | Doanh thu · giá vốn · chi phí · lãi thực |
+| 🛡️ | **[Admin](#12-quản-trị-hệ-thống)** | User · file · backup DB + ảnh tự động |
+
+---
+
+<details>
+<summary><b>Mục lục đầy đủ</b></summary>
 
 1. [Vì sao app này tồn tại?](#1-vì-sao-app-này-tồn-tại)
 2. [Card Collection là gì?](#2-card-collection-là-gì)
@@ -31,6 +77,8 @@
 12. [Quản trị hệ thống](#12-quản-trị-hệ-thống)
 13. [Công nghệ](#13-công-nghệ)
 14. [Chạy local & deploy](#14-chạy-local--deploy)
+
+</details>
 
 ---
 
@@ -469,6 +517,17 @@ Backup lưu trên server (vd. `/var/www/card-collection/backups/`). Nên giữ c
 
 ## 13. Công nghệ
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16%20App%20Router-black?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/PostgreSQL-Prisma%206-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Auth.js-Credentials-EB5424?style=for-the-badge&logo=auth0&logoColor=white" alt="Auth" />
+  <img src="https://img.shields.io/badge/Tailwind-v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind" />
+</p>
+
 | Lớp | Stack |
 |---|---|
 | App | Next.js 16 (App Router), React 19, TypeScript |
@@ -556,5 +615,10 @@ Chọn **PM2 hoặc Docker**, không chạy song song cùng một bản app.
 ---
 
 <p align="center">
-  <sub>Card Collection — quản lý thẻ · kho · bán · nợ · lãi</sub>
+  <img src="public/images/logo.png" alt="logo" width="48" /><br />
+  <b>Card Collection</b><br />
+  <sub>quản lý thẻ · kho · bán · nợ · lãi</sub><br /><br />
+  <a href="https://github.com/Thien2026/card-collection">
+    <img src="https://img.shields.io/badge/★_Star_nếu_hữu_ích-7C3AED?style=for-the-badge" alt="Star" />
+  </a>
 </p>
