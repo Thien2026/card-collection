@@ -33,6 +33,15 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# secrets / local notes
+bimat
+
+# runtime data (keep folder via .gitkeep where present)
+/uploads/**
+!/uploads/.gitkeep
+/backups/**
+!/backups/.gitkeep
+
 # vercel
 .vercel
 

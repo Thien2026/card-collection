@@ -1,0 +1,341 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum InventoryStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+}
+
+enum InventoryItemType {
+  SINGLE_CARD
+  SEALED_PRODUCT
+  ACCESSORY
+}
+
+enum AuditStatus {
+  ACTIVE
+  COMPLETED
+}
+
+enum AuditItemStatus {
+  PENDING
+  VERIFIED
+  MISSING
+  WRONG_LOCATION
+  CONDITION_MISMATCH
+}
+
+enum SaleStatus {
+  DRAFT
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum ExpenseType {
+  PLATFORM_FEE
+  PAYMENT_FEE
+  PACKAGING
+  SHIPPING
+  DISCOUNT
+  REFUND
+  OTHER
+}
+
+enum PaymentDirection {
+  CUSTOMER_TO_US
+  US_TO_CUSTOMER
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  EWALLET
+  OTHER
+}
+
+model User {
+  id                String             @id @default(cuid())
+  name              String
+  email             String             @unique
+  passwordHash      String
+  role              UserRole           @default(USER)
+  status            UserStatus         @default(ACTIVE)
+  deletedAt         DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  sales             Sale[]             @relation("CreatedSales")
+  categories        Category[]
+  cards             Card[]
+  inventoryItems    InventoryItem[]
+  customers         Customer[]
+  categoryFavorites CategoryFavorite[]
+  cardFavorites     CardFavorite[]
+  inventoryAudits   InventoryAudit[]
+}
+
+model Customer {
+  id        String            @id @default(cuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  notes     String?
+  sales     Sale[]
+  payments  CustomerPayment[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([userId, name])
+  @@index([userId, phone])
+  @@index([userId, email])
+}
+
+model CustomerPayment {
+  id         String           @id @default(cuid())
+  customerId String
+  customer   Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  saleId     String?
+  sale       Sale?            @relation(fields: [saleId], references: [id], onDelete: SetNull)
+  direction  PaymentDirection
+  method     PaymentMethod
+  amount     Int
+  notes      String?
+  paidAt     DateTime         @default(now())
+  createdAt  DateTime         @default(now())
+
+  @@index([customerId, paidAt])
+  @@index([saleId])
+}
+
+model Category {
+  id              String             @id @default(cuid())
+  name            String
+  userId          String?
+  user            User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coverImageUrl   String?
+  bannerImageUrl  String?
+  accentColor     String?
+  description     String?
+  releaseYear     Int?
+  targetItemCount Int?
+  parentId        String?
+  parent          Category?          @relation("CategoryTree", fields: [parentId], references: [id])
+  children        Category[]         @relation("CategoryTree")
+  cards           Card[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  favorites       CategoryFavorite[]
+  inventoryAudits InventoryAudit[]   @relation("AuditCollection")
+
+  @@unique([name, parentId, userId])
+  @@index([userId])
+}
+
+model Card {
+  id             String          @id @default(cuid())
+  name           String
+  userId         String?
+  user           User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game           String?
+  setName        String?
+  cardNumber     String?
+  characterName  String?
+  rarity         String?
+  referenceImage String?
+  notes          String?
+  categoryId     String?
+  category       Category?       @relation(fields: [categoryId], references: [id])
+  inventoryItems InventoryItem[]
+  images         CardImage[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  favorites      CardFavorite[]
+
+  @@index([categoryId])
+  @@index([userId])
+  @@index([name])
+}
+
+model CardImage {
+  id        String   @id @default(cuid())
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int
+  createdAt DateTime @default(now())
+
+  @@unique([cardId, sortOrder])
+  @@index([cardId])
+}
+
+model InventoryItem {
+  id              String               @id @default(cuid())
+  sku             String               @unique
+  userId          String?
+  user            User?                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardId          String
+  card            Card                 @relation(fields: [cardId], references: [id])
+  condition       String
+  itemType        InventoryItemType    @default(SINGLE_CARD)
+  grading         String?
+  gradeValue      String?
+  costPrice       Int
+  acquiredAt      DateTime?
+  storageLocation String?
+  imageUrl        String?
+  notes           String?
+  status          InventoryStatus      @default(AVAILABLE)
+  saleItems       SaleItem[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  auditItems      InventoryAuditItem[]
+
+  @@index([cardId])
+  @@index([userId])
+  @@index([status])
+}
+
+model Sale {
+  id           String            @id @default(cuid())
+  code         String            @unique
+  status       SaleStatus        @default(DRAFT)
+  customerId   String?
+  customer     Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerName String?
+  salesChannel String?
+  notes        String?
+  createdById  String
+  createdBy    User              @relation("CreatedSales", fields: [createdById], references: [id])
+  completedAt  DateTime?
+  cancelledAt  DateTime?
+  refundedAt   DateTime?
+  items        SaleItem[]
+  expenses     SaleExpense[]
+  payments     CustomerPayment[]
+  refunds      SaleRefund[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([status])
+  @@index([createdById])
+  @@index([customerId])
+}
+
+model SaleRefund {
+  id              String     @id @default(cuid())
+  saleId          String
+  sale            Sale       @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  notes           String?
+  refundedAmount  Int        @default(0)
+  createdAt       DateTime   @default(now())
+  items           SaleItem[]
+
+  @@index([saleId])
+  @@index([createdAt])
+}
+
+model SaleItem {
+  id              String        @id @default(cuid())
+  saleId          String
+  sale            Sale          @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  soldPrice       Int
+  costPrice       Int
+  refundedAt      DateTime?
+  refundId        String?
+  refund          SaleRefund?   @relation(fields: [refundId], references: [id], onDelete: SetNull)
+  createdAt       DateTime      @default(now())
+
+  @@index([saleId])
+  @@index([inventoryItemId])
+  @@index([refundId])
+  @@index([refundedAt])
+}
+
+model SaleExpense {
+  id        String      @id @default(cuid())
+  saleId    String
+  sale      Sale        @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  type      ExpenseType
+  label     String?
+  amount    Int
+  createdAt DateTime    @default(now())
+
+  @@index([saleId])
+}
+
+model CategoryFavorite {
+  id         String   @id @default(cuid())
+  userId     String
+  categoryId String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, categoryId])
+  @@index([userId, createdAt])
+  @@index([categoryId])
+}
+
+model CardFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  cardId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, cardId])
+  @@index([userId, createdAt])
+  @@index([cardId])
+}
+
+model InventoryAudit {
+  id           String               @id @default(cuid())
+  userId       String
+  collectionId String
+  status       AuditStatus          @default(ACTIVE)
+  startedAt    DateTime             @default(now())
+  completedAt  DateTime?
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collection   Category             @relation("AuditCollection", fields: [collectionId], references: [id], onDelete: Cascade)
+  items        InventoryAuditItem[]
+
+  @@index([userId, collectionId, status])
+}
+
+model InventoryAuditItem {
+  id              String          @id @default(cuid())
+  auditId         String
+  inventoryItemId String
+  status          AuditItemStatus @default(PENDING)
+  notes           String?
+  checkedAt       DateTime?
+  audit           InventoryAudit  @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  inventoryItem   InventoryItem   @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  @@unique([auditId, inventoryItemId])
+  @@index([auditId, status])
+  @@index([inventoryItemId])
+}
