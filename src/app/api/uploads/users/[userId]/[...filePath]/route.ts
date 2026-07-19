@@ -43,7 +43,7 @@ export async function GET(
     return new NextResponse(data, {
       headers: {
         "Content-Type": mediaTypes[extension] ?? "application/octet-stream",
-        "Cache-Control": "private, max-age=3600",
+        "Cache-Control": "private, max-age=0, must-revalidate",
       },
     });
   } catch {

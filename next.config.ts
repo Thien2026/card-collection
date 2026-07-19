@@ -5,6 +5,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  images: {
+    localPatterns: [
+      {
+        // Cho phép logo/cache-bust ?v=... với next/image
+        pathname: "/images/**",
+      },
+    ],
+  },
   experimental: {
     proxyClientMaxBodySize: "200mb",
     serverActions: {

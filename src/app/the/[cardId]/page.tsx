@@ -315,16 +315,29 @@ export default async function CardDetailPage({
                 )}
               </div>
 
-              <div className="mt-4 rounded-xl border border-app-border bg-panel p-3 sm:mt-6 sm:rounded-2xl sm:p-4">
-                <p className="text-[9px] text-muted sm:text-[10px]">
-                  Giá lúc mua
-                </p>
-                <p className="mt-1 truncate text-base font-black text-primary sm:text-2xl">
-                  {representative ? formatVnd(representative.costPrice) : "—"}
-                </p>
-                <p className="mt-1 text-[8px] text-muted sm:text-[10px]">
-                  Giá vốn của mục
-                </p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl border border-app-border bg-panel p-3 sm:rounded-2xl sm:p-4">
+                  <p className="text-[9px] text-muted sm:text-[10px]">
+                    Giá lúc mua
+                  </p>
+                  <p className="mt-1 truncate text-base font-black text-primary sm:text-2xl">
+                    {representative ? formatVnd(representative.costPrice) : "—"}
+                  </p>
+                  <p className="mt-1 text-[8px] text-muted sm:text-[10px]">
+                    Giá vốn của mục
+                  </p>
+                </div>
+                <div className="rounded-xl border border-app-border bg-panel p-3 sm:rounded-2xl sm:p-4">
+                  <p className="text-[9px] text-muted sm:text-[10px]">
+                    Giá thị trường
+                  </p>
+                  <p className="mt-1 truncate text-base font-black text-primary sm:text-2xl">
+                    {card.marketPrice != null ? formatVnd(card.marketPrice) : "—"}
+                  </p>
+                  <p className="mt-1 text-[8px] text-muted sm:text-[10px]">
+                    Ước giá giao dịch hiện tại
+                  </p>
+                </div>
               </div>
 
               {availableItems.length > 0 && (
@@ -427,6 +440,12 @@ export default async function CardDetailPage({
             <Detail label="Mã thẻ" value={card.cardNumber} />
             <Detail label="Độ hiếm" value={card.rarity} />
             <Detail label="Nhân vật" value={card.characterName} />
+            <Detail
+              label="Giá thị trường"
+              value={
+                card.marketPrice != null ? formatVnd(card.marketPrice) : null
+              }
+            />
             <Detail
               label="Tình trạng"
               value={

@@ -71,6 +71,7 @@ export async function moveTemporaryImage({
     await writeFile(target, output);
     await rm(source, { force: true });
   } else {
+    await rm(target, { force: true });
     await rename(source, target);
   }
   return toPublicUrl(destination);

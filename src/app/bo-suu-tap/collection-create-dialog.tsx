@@ -9,6 +9,7 @@ import {
   useTransition,
 } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { Camera, Edit3, LoaderCircle, Plus, Settings, X } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -17,6 +18,7 @@ import {
   updateCategory,
 } from "./category-actions";
 import { IMAGE_UPLOAD_ACCEPT, IMAGE_UPLOAD_HELP } from "@/lib/upload-image";
+import { compressImageForUpload } from "@/lib/compress-image-client";
 
 type Collection = { id: string; name: string };
 export type CategoryValue = {
@@ -61,6 +63,7 @@ export function CategoryDialog({
   trigger = category ? "edit" : "add",
   onCreated,
 }: DialogProps) {
+  const router = useRouter();
   const editing = Boolean(category);
   const [open, setOpen] = useState(defaultOpen);
   const [mounted, setMounted] = useState(false);
@@ -102,8 +105,9 @@ export function CategoryDialog({
   async function upload(file: File | undefined, target: "cover" | "banner") {
     if (!file) return;
     setError("");
+    const prepared = await compressImageForUpload(file);
     const body = new FormData();
-    body.append("file", file);
+    body.append("file", prepared);
     const response = await fetch("/api/upload", { method: "POST", body });
     const data = (await response.json().catch(() => ({}))) as {
       error?: string;
@@ -134,6 +138,7 @@ export function CategoryDialog({
           onCreated?.({ id: created.id, mode });
         }
         setOpen(false);
+        router.refresh();
         toast.success(
           editing
             ? "Đã cập nhật"

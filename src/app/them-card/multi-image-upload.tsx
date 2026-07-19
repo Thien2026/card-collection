@@ -8,6 +8,7 @@ import {
   IMAGE_UPLOAD_HELP,
   IMAGE_UPLOAD_MAX_FILES,
 } from "@/lib/upload-image";
+import { compressImageForUpload } from "@/lib/compress-image-client";
 
 const MIN_ZOOM = 0.35;
 const MAX_ZOOM = 4;
@@ -70,35 +71,42 @@ export function MultiImageUpload({
 
       setUploading(true);
       setError("");
-      const uploaded: UploadedImage[] = [];
       try {
-        for (const file of files.slice(0, remaining)) {
-          const body = new FormData();
-          body.append("file", file);
-          const response = await fetch("/api/upload", { method: "POST", body });
-          const data = (await response.json().catch(() => ({}))) as {
-            error?: string;
-            url?: string;
-            token?: string;
-          };
-          if (!response.ok || !data.url || !data.token)
-            throw new Error(data.error ?? `Không thể tải ${file.name}.`);
-          uploaded.push({
-            id: crypto.randomUUID(),
-            token: data.token,
-            existingId: null,
-            url: data.url,
-            crop: { x: 0, y: 0 },
-            zoom: 1,
-            rotation: 0,
-            croppedArea: null,
-          });
-        }
+        const prepared = await Promise.all(
+          files.slice(0, remaining).map((file) => compressImageForUpload(file)),
+        );
+        const results = await Promise.all(
+          prepared.map(async (file) => {
+            const body = new FormData();
+            body.append("file", file);
+            const response = await fetch("/api/upload", {
+              method: "POST",
+              body,
+            });
+            const data = (await response.json().catch(() => ({}))) as {
+              error?: string;
+              url?: string;
+              token?: string;
+            };
+            if (!response.ok || !data.url || !data.token)
+              throw new Error(data.error ?? `Không thể tải ${file.name}.`);
+            return {
+              id: crypto.randomUUID(),
+              token: data.token,
+              existingId: null,
+              url: data.url,
+              crop: { x: 0, y: 0 },
+              zoom: 1,
+              rotation: 0,
+              croppedArea: null,
+            } satisfies UploadedImage;
+          }),
+        );
         setImages((current) => {
           const room = IMAGE_UPLOAD_MAX_FILES - current.length;
-          return [...current, ...uploaded.slice(0, room)];
+          return [...current, ...results.slice(0, room)];
         });
-        setActiveId((current) => current ?? uploaded[0]?.id ?? null);
+        setActiveId((current) => current ?? results[0]?.id ?? null);
       } catch (uploadError) {
         setError(
           uploadError instanceof Error

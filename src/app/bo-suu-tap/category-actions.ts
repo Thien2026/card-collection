@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -301,11 +302,13 @@ export async function updateCategory(formData: FormData) {
   const base = parentId
     ? `users/${session.user.id}/collections/${parentId}/series/${id}`
     : `users/${session.user.id}/collections/${id}`;
+
+  // URL mới mỗi lần đổi ảnh — tránh browser/CDN giữ ảnh cũ cùng path cover.webp.
   const coverImageUrl = coverToken
     ? await moveTemporaryImage({
         userId: session.user.id,
         token: coverToken,
-        destination: `${base}/cover.webp`,
+        destination: `${base}/cover-${randomUUID()}.webp`,
       })
     : current.coverImageUrl;
   const bannerImageUrl =
@@ -313,9 +316,27 @@ export async function updateCategory(formData: FormData) {
       ? await moveTemporaryImage({
           userId: session.user.id,
           token: bannerToken,
-          destination: `${base}/banner.webp`,
+          destination: `${base}/banner-${randomUUID()}.webp`,
         })
       : current.bannerImageUrl;
+
+  if (coverToken && current.coverImageUrl && coverImageUrl !== current.coverImageUrl) {
+    await removeStoredImage({
+      userId: session.user.id,
+      url: current.coverImageUrl,
+    });
+  }
+  if (
+    bannerToken &&
+    current.bannerImageUrl &&
+    bannerImageUrl !== current.bannerImageUrl
+  ) {
+    await removeStoredImage({
+      userId: session.user.id,
+      url: current.bannerImageUrl,
+    });
+  }
+
   await prisma.category.update({
     where: { id },
     data: {
@@ -326,11 +347,16 @@ export async function updateCategory(formData: FormData) {
       accentColor:
         String(formData.get("accentColor") ?? "").trim() || "#8b5cf6",
       coverImageUrl,
-      bannerImageUrl,
+      bannerImageUrl: parentId ? current.bannerImageUrl : bannerImageUrl,
     },
   });
   revalidatePath("/");
   revalidatePath("/bo-suu-tap");
   revalidatePath(`/bo-suu-tap/${parentId ?? id}`);
-  if (parentId) revalidatePath(`/bo-suu-tap/${parentId}/${id}`);
+  revalidatePath(`/bo-suu-tap/${parentId ?? id}/thiet-lap`);
+  revalidatePath(`/bo-suu-tap/${parentId ?? id}/series`);
+  if (parentId) {
+    revalidatePath(`/bo-suu-tap/${parentId}/${id}`);
+    revalidatePath(`/bo-suu-tap/${parentId}/series`);
+  }
 }

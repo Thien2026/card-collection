@@ -83,7 +83,7 @@ export async function POST(request: Request) {
           await convertHeic({
             buffer: source,
             format: "JPEG",
-            quality: 0.95,
+            quality: 0.8,
           }),
         );
       }
@@ -94,12 +94,12 @@ export async function POST(request: Request) {
       buffer = await sharp(source, { animated: false })
         .rotate()
         .resize({
-          width: 2048,
-          height: 2048,
+          width: 1600,
+          height: 1600,
           fit: "inside",
           withoutEnlargement: true,
         })
-        .webp({ quality: 86 })
+        .webp({ quality: 82 })
         .toBuffer();
     } catch {
       return NextResponse.json(

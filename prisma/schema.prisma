@@ -161,6 +161,7 @@ model Card {
   cardNumber     String?
   characterName  String?
   rarity         String?
+  marketPrice    Int?
   referenceImage String?
   notes          String?
   categoryId     String?

@@ -76,6 +76,8 @@ export async function updateCard(cardId: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const condition = String(formData.get("condition") ?? "NM");
   const costPrice = Number(formData.get("costPrice") ?? 0);
+  const marketPriceRaw = String(formData.get("marketPrice") ?? "").trim();
+  const marketPrice = marketPriceRaw === "" ? null : Number(marketPriceRaw);
   const imagesField = formData.get("images");
   const requestedImages = parseImages(imagesField);
   const acquiredAtValue = String(formData.get("acquiredAt") ?? "").trim();
@@ -88,6 +90,8 @@ export async function updateCard(cardId: string, formData: FormData) {
     !conditions.has(condition) ||
     !Number.isInteger(costPrice) ||
     costPrice < 0 ||
+    (marketPrice !== null &&
+      (!Number.isInteger(marketPrice) || marketPrice < 0)) ||
     (acquiredAt && Number.isNaN(acquiredAt.getTime()))
   ) {
     throw new Error("Thông tin chỉnh sửa không hợp lệ.");
@@ -200,6 +204,7 @@ export async function updateCard(cardId: string, formData: FormData) {
           characterName:
             String(formData.get("characterName") ?? "").trim() || null,
           rarity: String(formData.get("rarity") ?? "").trim() || null,
+          marketPrice,
           referenceImage: primaryImage,
           notes,
         },

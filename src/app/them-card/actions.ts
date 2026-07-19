@@ -52,6 +52,8 @@ export async function createInventoryCard(formData: FormData) {
   const categoryId = String(formData.get("categoryId") ?? "").trim();
   const images = parseImages(formData.get("images"));
   const costPrice = Number(formData.get("costPrice") ?? 0);
+  const marketPriceRaw = String(formData.get("marketPrice") ?? "").trim();
+  const marketPrice = marketPriceRaw === "" ? null : Number(marketPriceRaw);
   const quantity = Number(formData.get("quantity") ?? 1);
   const acquiredAtValue = String(formData.get("acquiredAt") ?? "").trim();
   const acquiredAt = acquiredAtValue
@@ -67,6 +69,8 @@ export async function createInventoryCard(formData: FormData) {
     !name ||
     !Number.isInteger(costPrice) ||
     costPrice < 0 ||
+    (marketPrice !== null &&
+      (!Number.isInteger(marketPrice) || marketPrice < 0)) ||
     !Number.isInteger(quantity) ||
     quantity < 1 ||
     (acquiredAt && Number.isNaN(acquiredAt.getTime()))
@@ -115,6 +119,7 @@ export async function createInventoryCard(formData: FormData) {
           characterName:
             String(formData.get("characterName") ?? "").trim() || null,
           rarity: String(formData.get("rarity") ?? "").trim() || null,
+          marketPrice,
           categoryId: resolvedCategoryId,
           notes: String(formData.get("notes") ?? "").trim() || null,
         },

@@ -358,6 +358,13 @@ export function AddCardFlow({
                   required
                 />
                 <Input
+                  name="marketPrice"
+                  label="Giá thị trường (VND)"
+                  type="number"
+                  min="0"
+                  placeholder="Ước giá đang giao dịch (tuỳ chọn)"
+                />
+                <Input
                   name="acquiredAt"
                   label="Ngày mua"
                   type="date"

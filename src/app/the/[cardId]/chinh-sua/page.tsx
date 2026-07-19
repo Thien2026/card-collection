@@ -173,6 +173,16 @@ export default async function EditCardPage({
                 required
               />
               <Field
+                name="marketPrice"
+                label="Giá thị trường (VND)"
+                type="number"
+                min="0"
+                defaultValue={
+                  card.marketPrice != null ? String(card.marketPrice) : ""
+                }
+                placeholder="Ước giá đang giao dịch"
+              />
+              <Field
                 name="acquiredAt"
                 label="Ngày mua"
                 type="date"
