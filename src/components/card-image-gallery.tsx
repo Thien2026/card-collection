@@ -6,6 +6,13 @@ import { ChevronLeft, ChevronRight, ImageIcon, X, ZoomIn } from "lucide-react";
 const SWIPE_X = 48;
 const SWIPE_DOWN = 90;
 const VELOCITY_X = 0.35; // px/ms
+const IMAGE_CACHE_VERSION = "20260719-standalone-path-fix";
+
+function cacheBustedImageUrl(url: string) {
+  if (!url.startsWith("/api/uploads/")) return url;
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}v=${IMAGE_CACHE_VERSION}`;
+}
 
 export function CardImageGallery({
   images,
@@ -182,7 +189,7 @@ export function CardImageGallery({
             aria-label="Xem ảnh lớn"
           >
             <img
-              src={thumb}
+              src={cacheBustedImageUrl(thumb)}
               alt={`${name} — ảnh ${safeActive + 1}`}
               className="h-full w-full object-cover transition group-hover:brightness-95"
             />
@@ -215,7 +222,11 @@ export function CardImageGallery({
                 safeActive === index ? "border-violet-500" : "border-app-border"
               }`}
             >
-              <img src={url} alt="" className="h-full w-full object-cover" />
+              <img
+                src={cacheBustedImageUrl(url)}
+                alt=""
+                className="h-full w-full object-cover"
+              />
             </button>
           ))}
         </div>
@@ -292,7 +303,7 @@ export function CardImageGallery({
                   style={{ width: `${100 / Math.max(count, 1)}%` }}
                 >
                   <img
-                    src={url}
+                    src={cacheBustedImageUrl(url)}
                     alt={`${name} — ảnh ${index + 1}`}
                     draggable={false}
                     className="max-h-full max-w-full select-none object-contain"
@@ -342,7 +353,11 @@ export function CardImageGallery({
                       : "border-white/20 opacity-70"
                   }`}
                 >
-                  <img src={url} alt="" className="h-full w-full object-cover" />
+                  <img
+                src={cacheBustedImageUrl(url)}
+                alt=""
+                className="h-full w-full object-cover"
+              />
                 </button>
               ))}
             </div>

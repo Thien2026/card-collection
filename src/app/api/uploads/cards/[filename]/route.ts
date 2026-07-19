@@ -20,7 +20,11 @@ export async function GET(
   try {
     const extension = path.extname(filename);
     const data = await readFile(
-      path.join(process.cwd(), "uploads", "cards", filename),
+      path.join(
+        process.env.UPLOADS_ROOT ?? path.join(process.cwd(), "uploads"),
+        "cards",
+        filename,
+      ),
     );
     return new NextResponse(data, {
       headers: {

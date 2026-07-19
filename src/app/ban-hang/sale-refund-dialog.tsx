@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { RotateCcw, X } from "lucide-react";
 import { toast } from "sonner";
 import { formatVnd, formatVndInput, parseVndInput } from "@/lib/format";
@@ -53,7 +52,6 @@ export function SaleRefundDialog({
   orderPaid: number;
   items: RefundItem[];
 }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [selected, setSelected] = useState<Record<string, boolean>>(() =>
@@ -141,7 +139,6 @@ export function SaleRefundDialog({
             ? `Đã hoàn toàn bộ ${saleCode}`
             : `Đã hoàn ${selectedItems.length} mục trong ${saleCode}`,
         );
-        router.refresh();
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Không thể hoàn đơn.",
@@ -172,6 +169,7 @@ export function SaleRefundDialog({
             className="absolute inset-0 bg-[var(--overlay)] backdrop-blur-[2px]"
           />
           <form
+            method="post"
             action={submit}
             className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-app-border bg-surface p-5 shadow-2xl"
           >

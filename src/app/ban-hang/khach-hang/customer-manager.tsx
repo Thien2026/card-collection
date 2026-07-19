@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Mail, MapPin, Phone, Plus, Search, UserRound, X } from "lucide-react";
 import { toast } from "sonner";
 import { formatVnd } from "@/lib/format";
@@ -33,7 +32,6 @@ export function CustomerManager({
   totalPages: number;
   query: string;
 }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -42,7 +40,6 @@ export function CustomerManager({
       try {
         const created = await createCustomer(formData);
         setOpen(false);
-        router.refresh();
         toast.success(`Đã thêm khách hàng “${created.name}”`);
       } catch (error) {
         toast.error(

@@ -9,7 +9,6 @@ import {
   useTransition,
 } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
 import { Camera, Edit3, LoaderCircle, Plus, Settings, X } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -63,7 +62,6 @@ export function CategoryDialog({
   trigger = category ? "edit" : "add",
   onCreated,
 }: DialogProps) {
-  const router = useRouter();
   const editing = Boolean(category);
   const [open, setOpen] = useState(defaultOpen);
   const [mounted, setMounted] = useState(false);
@@ -138,7 +136,6 @@ export function CategoryDialog({
           onCreated?.({ id: created.id, mode });
         }
         setOpen(false);
-        router.refresh();
         toast.success(
           editing
             ? "Đã cập nhật"
@@ -274,7 +271,7 @@ export function CategoryDialog({
                   </button>
                 </div>
               )}
-              <form action={submit} className="mt-5 space-y-4">
+              <form method="post" action={submit} className="mt-5 space-y-4">
                 {category && (
                   <input type="hidden" name="id" value={category.id} />
                 )}

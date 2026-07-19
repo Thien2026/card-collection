@@ -1,7 +1,7 @@
 import { readdir, rm, stat } from "node:fs/promises";
 import path from "node:path";
 
-export const uploadsRoot = path.join(process.cwd(), "uploads");
+export const uploadsRoot = process.env.UPLOADS_ROOT ?? path.join(process.cwd(), "uploads");
 export const usersUploadsRoot = path.join(uploadsRoot, "users");
 
 const SAFE_SEGMENT = /^[a-zA-Z0-9._-]+$/;

@@ -32,8 +32,7 @@ export async function GET(
 
   try {
     const absolute = path.join(
-      process.cwd(),
-      "uploads",
+      process.env.UPLOADS_ROOT ?? path.join(process.cwd(), "uploads"),
       "users",
       userId,
       ...filePath,

@@ -12,7 +12,7 @@ async function userId() {
 function refreshFavorites() {
   revalidatePath("/yeu-thich");
   revalidatePath("/");
-  revalidatePath("/bo-suu-tap", "layout");
+  revalidatePath("/bo-suu-tap");
   revalidatePath("/the-them-gan-day");
 }
 

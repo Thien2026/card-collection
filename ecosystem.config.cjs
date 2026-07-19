@@ -3,8 +3,8 @@ module.exports = {
     {
       name: "card-collection",
       cwd: "/var/www/card-collection",
-      script: "node_modules/next/dist/bin/next",
-      args: "start",
+      script: ".next/standalone/server.js",
+      interpreter: "node",
       instances: 1,
       exec_mode: "fork",
       autorestart: true,
@@ -14,6 +14,7 @@ module.exports = {
         NODE_ENV: "production",
         PORT: "9100",
         HOSTNAME: "127.0.0.1",
+        UPLOADS_ROOT: "/var/www/card-data/uploads",
       },
     },
   ],

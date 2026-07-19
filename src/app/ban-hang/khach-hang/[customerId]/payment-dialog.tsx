@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Banknote, X } from "lucide-react";
 import { toast } from "sonner";
 import { recordCustomerPayment } from "../actions";
@@ -15,7 +14,6 @@ export function PaymentDialog({
   customerName: string;
   balance: number;
 }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -24,7 +22,6 @@ export function PaymentDialog({
       try {
         await recordCustomerPayment(customerId, formData);
         setOpen(false);
-        router.refresh();
         toast.success("Đã ghi nhận thanh toán");
       } catch (error) {
         toast.error(
@@ -56,6 +53,7 @@ export function PaymentDialog({
             className="absolute inset-0 bg-[var(--overlay)] backdrop-blur-[2px]"
           />
           <form
+            method="post"
             action={submit}
             className="relative z-10 w-full max-w-md rounded-2xl border border-app-border bg-surface p-5 shadow-2xl"
           >

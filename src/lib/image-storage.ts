@@ -9,7 +9,7 @@ import {
 import path from "node:path";
 import sharp from "sharp";
 
-const uploadsRoot = path.join(process.cwd(), "uploads");
+const uploadsRoot = process.env.UPLOADS_ROOT ?? path.join(process.cwd(), "uploads");
 
 export type ImageCrop = {
   x: number;

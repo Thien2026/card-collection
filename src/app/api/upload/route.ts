@@ -62,8 +62,7 @@ export async function POST(request: Request) {
     }
 
     const directory = path.join(
-      process.cwd(),
-      "uploads",
+      process.env.UPLOADS_ROOT ?? path.join(process.cwd(), "uploads"),
       "users",
       user.id,
       "tmp",

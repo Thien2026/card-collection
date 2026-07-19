@@ -376,7 +376,9 @@ export async function recordSalePayment(saleId: string, formData: FormData) {
 }
 
 export async function refundSale(saleId: string, formData: FormData) {
+  const actionStartedAt = performance.now();
   const session = await auth();
+  const authDurationMs = performance.now() - actionStartedAt;
   if (!session?.user?.id) throw new Error("UNAUTHORIZED");
 
   const sale = await prisma.sale.findFirst({
@@ -393,6 +395,8 @@ export async function refundSale(saleId: string, formData: FormData) {
       },
     },
   });
+  const loadSaleDurationMs =
+    performance.now() - actionStartedAt - authDurationMs;
   if (!sale) throw new Error("Không tìm thấy giao dịch.");
   if (sale.status !== "COMPLETED" && sale.status !== "REFUNDED") {
     throw new Error("Chỉ hoàn được đơn đã hoàn tất.");
@@ -441,6 +445,7 @@ export async function refundSale(saleId: string, formData: FormData) {
   const remainingAfter =
     activeItems.length - toRefund.length === 0;
 
+  const transactionStartedAt = performance.now();
   await prisma.$transaction(async (tx) => {
     const refund = await tx.saleRefund.create({
       data: {
@@ -513,14 +518,14 @@ export async function refundSale(saleId: string, formData: FormData) {
 
     await Promise.all(sideEffects);
   });
+  const transactionDurationMs = performance.now() - transactionStartedAt;
 
-  // Trang đang mở — invalidate ngay để router.refresh() lấy data mới.
-  revalidatePath(`/ban-hang/${sale.id}`);
-  revalidatePath("/ban-hang");
-
-  // Các trang khác không cần chặn response hoàn đơn.
+  // Không buộc Server Action chờ dựng lại RSC của trang giao dịch.
+  // Dữ liệu đã commit; invalidation có thể chạy sau khi response trả về client.
   const customerId = sale.customerId;
   after(() => {
+    revalidatePath(`/ban-hang/${sale.id}`);
+    revalidatePath("/ban-hang");
     revalidatePath("/ban-hang/bao-cao");
     revalidatePath("/");
     revalidatePath("/bo-suu-tap");
@@ -533,5 +538,19 @@ export async function refundSale(saleId: string, formData: FormData) {
       revalidatePath("/ban-hang/so-no");
     }
   });
+
+  const totalDurationMs = performance.now() - actionStartedAt;
+  if (process.env.NODE_ENV === "production" || totalDurationMs >= 1_000) {
+    console.info(
+      "[perf] refundSale",
+      JSON.stringify({
+        itemCount: toRefund.length,
+        authMs: Math.round(authDurationMs),
+        loadSaleMs: Math.round(loadSaleDurationMs),
+        transactionMs: Math.round(transactionDurationMs),
+        totalMs: Math.round(totalDurationMs),
+      }),
+    );
+  }
 }
 

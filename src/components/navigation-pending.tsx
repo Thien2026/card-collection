@@ -82,6 +82,10 @@ function NavigationPendingWatcher({
     }
 
     function onSubmit(event: Event) {
+      // Bubble phase: React form/Server Actions call preventDefault first.
+      // Capture-phase listening incorrectly treated them as route navigations,
+      // leaving the full-screen loader stuck until the 10s failsafe.
+      if (event.defaultPrevented) return;
       const form = event.target;
       if (!(form instanceof HTMLFormElement)) return;
       const method = (form.getAttribute("method") || "get").toLowerCase();
@@ -90,10 +94,10 @@ function NavigationPendingWatcher({
     }
 
     document.addEventListener("click", onClick, true);
-    document.addEventListener("submit", onSubmit, true);
+    document.addEventListener("submit", onSubmit);
     return () => {
       document.removeEventListener("click", onClick, true);
-      document.removeEventListener("submit", onSubmit, true);
+      document.removeEventListener("submit", onSubmit);
     };
   }, [setPending]);
 

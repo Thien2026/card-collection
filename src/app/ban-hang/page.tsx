@@ -29,7 +29,7 @@ import { ScrollToSectionButton } from "./scroll-to-section-button";
 
 const statuses = ["ALL", "DRAFT", "COMPLETED", "CANCELLED", "REFUNDED"] as const;
 type StatusFilter = (typeof statuses)[number];
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 8;
 
 export default async function SalesPage({
   searchParams,
